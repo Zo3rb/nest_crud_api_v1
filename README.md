@@ -24,5 +24,5 @@
 
 ## Description
 
-Just Simple CRUD API (Data Stored and Retrived From Memory) V1.
+Just Simple CRUD API (Data Stored and Retrieved From Memory) V1.
 Will Be Continued Inshallah.
