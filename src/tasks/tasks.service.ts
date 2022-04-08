@@ -15,36 +15,48 @@ export class TasksService {
     private tasksRepository: Repository<Task>,
   ) {}
 
-  getAllTasks(): Promise<Task[]> {
-    return this.tasksRepository.find();
+  async getAllTasks(): Promise<Task[]> {
+    return await this.tasksRepository.find();
   }
 
   // getTasks(filterDto: TasksFilteredDto): Promise<Task[]> {
   //   const { status, search } = filterDto;
   // }
 
-  // getSingleTask(id: string): Task {
-  //   const task = this._tasks.find((task) => task.id === id);
-  //   if (!task) {
-  //     throw new NotFoundException();
-  //   }
-  //   return task;
-  // }
+  async getSingleTask(id?: number): Promise<Task> {
+    const task = await this.tasksRepository.findOneBy({ id });
+    if (!task) {
+      throw new NotFoundException();
+    } else {
+      return task;
+    }
+  }
 
-  // createTask(createTaskDto: CreateTaskDto): Task {
-  //   const { title, description } = createTaskDto;
+  async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
+    const { title, description } = createTaskDto;
 
-  //   const newTaskToCreate = {
-  //     id: uuidv4(),
-  //     title,
-  //     description,
-  //     status: TaskStatusEnum.OPEN,
-  //   };
+    const newTaskToCreate = await this.tasksRepository.save({
+      title,
+      description,
+      status: TaskStatusEnum.OPEN,
+    });
 
-  //   this._tasks.push(newTaskToCreate);
+    return newTaskToCreate;
+  }
 
-  //   return newTaskToCreate;
-  // }
+  async updateTask(taskId: number, newStatus: TaskStatusEnum): Promise<object> {
+    const taskToUpdate = await this.tasksRepository.update(
+      { id: taskId },
+      { status: newStatus },
+    );
+
+    const { affected } = taskToUpdate;
+    if (!affected) {
+      throw new NotFoundException();
+    }
+
+    return { success: true, message: 'Successfully Updated' };
+  }
 
   // updateTask(taskId: string, newStatus: TaskStatusEnum): Task {
   //   let taskToUpdate = this._tasks.find((task) => task.id === taskId);
@@ -52,8 +64,14 @@ export class TasksService {
   //   return taskToUpdate;
   // }
 
-  // deleteTask(taskId: string): void {
-  //   const taskToDelete = this.getSingleTask(taskId);
-  //   this._tasks = this._tasks.filter((task) => task.id !== taskId);
-  // }
+  async deleteTask(taskId: number): Promise<object> {
+    const taskToDelete = await this.tasksRepository.delete({ id: taskId });
+
+    const { affected } = taskToDelete;
+    if (!affected) {
+      throw new NotFoundException();
+    }
+
+    return { success: true, message: 'Successfully Deleted' };
+  }
 }
